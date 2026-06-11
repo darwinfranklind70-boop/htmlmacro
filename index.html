@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TraderDesk PRO · Analizador Predictivo de Noticias</title>
-<meta name="description" content="Terminal institucional que analiza noticias en cualquier idioma (traducidas al español) y proyecta el sesgo de US30, US100, XAUUSD y EUR/USD para las próximas horas y swing." />
+<title>TraderDesk PRO · Terminal Geo-Macro & Analista IA Swing</title>
+<meta name="description" content="Terminal geo-macro institucional con analista IA (Gemini) que proyecta el sesgo swing de US100, US30, US500, OIL y XAUUSD a partir de noticias macro, agenda económica y un monitor geopolítico global." />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -101,6 +101,7 @@
   .badge.anti{background:rgba(240,185,11,.16);color:var(--warn);border:1px solid rgba(240,185,11,.4)}
   .badge.tr{background:rgba(59,130,246,.16);color:#6ea8ff}
   .badge.theme{background:rgba(168,85,247,.14);color:#cda6ff;border:1px solid rgba(168,85,247,.3);text-transform:none;letter-spacing:0}
+  .iatag{display:inline-block;font-size:9px;font-weight:800;background:rgba(168,85,247,.18);color:#cda6ff;border:1px solid rgba(168,85,247,.45);padding:1px 6px;border-radius:6px;vertical-align:middle;margin-left:5px;letter-spacing:.5px}
   .src{font-size:10.5px;color:var(--txt-dim);font-weight:700}
   .ain-body h3{font-size:14px;font-weight:600;line-height:1.35}
   .ain-body h3 a:hover{color:var(--accent)}
@@ -220,7 +221,7 @@
   <div class="topbar">
     <div class="brand">
       <div class="logo">T</div>
-      <div><h1>TraderDesk <small>PRO</small></h1><span>Analizador predictivo de noticias</span></div>
+      <div><h1>TraderDesk <small>PRO</small></h1><span>Terminal geo-macro · sesgo swing con IA</span></div>
     </div>
     <div class="status">
       <span class="live"><span class="dot"></span> EN VIVO</span>
@@ -241,7 +242,7 @@
 <div class="wrap">
 
   <!-- FORECAST -->
-  <div class="section-title"><b>🔮 Pronóstico ahora</b> · sesgo por noticias (próximas horas / swing)<span class="ln"></span><span id="fcStamp" style="color:var(--txt-dim);font-size:11px"></span></div>
+  <div class="section-title"><b>🎯 Sesgo swing por activo</b> · decidido por IA + flujo macro<span class="ln"></span><span id="fcStamp" style="color:var(--txt-dim);font-size:11px"></span></div>
   <div class="fcgrid mb" id="forecast"></div>
 
   <!-- SESSIONS + RISK -->
@@ -268,9 +269,10 @@
   <!-- MAIN COLS -->
   <div class="cols mb">
     <div>
-      <div class="section-title"><b>🧠 Análisis de noticias</b> en tiempo real<span class="ln"></span></div>
+      <div class="section-title"><b>🧠 Noticias macro</b> · flujo filtrado para swing<span class="ln"></span></div>
       <div class="feedhead">
-        <div class="search">🔎 <input id="search" placeholder="Filtrar: Fed, oro, Irán, IPC, Nasdaq…"></div>
+        <div class="search">🔎 <input id="search" placeholder="Filtrar: Fed, oro, petróleo, OPEP, IPC, Nasdaq, S&P…"></div>
+        <div class="toggle on" id="swingOnly" style="font-size:12px" title="Solo macro de gran impacto (filtra ruido scalping)"><span class="switch"></span> Solo macro (swing)</div>
         <div class="toggle" id="onlyMine" style="font-size:12px" title="Mostrar solo noticias que afectan a mi activo"><span class="switch"></span> Solo mi activo</div>
         <span id="feedSub" style="font-size:11px;color:var(--txt-dim);margin-left:auto">Cargando…</span>
       </div>
@@ -280,10 +282,10 @@
     </div>
     <div class="side-col">
       <div class="panel">
-        <div class="ph"><span><span class="ic">📋</span> Panorama del día</span>
+        <div class="ph"><span><span class="ic">🧠</span> Analista IA · panorama swing <span id="aiStamp2" style="font-size:10px;color:var(--txt-dim);font-weight:600"></span></span>
           <span style="display:flex;gap:6px">
-            <button class="btn" id="panoBtn" style="padding:5px 10px;font-size:12px" title="Regenerar panorama (sin IA, gratis)">↻</button>
-            <button class="btn ai" id="panoAiBtn" style="padding:5px 10px;font-size:12px" title="Redacción avanzada con tu IA">✨ IA</button>
+            <button class="btn" id="panoBtn" style="padding:5px 10px;font-size:12px" title="Panorama del motor propio (sin IA, gratis)">↻</button>
+            <button class="btn ai" id="panoAiBtn" style="padding:5px 10px;font-size:12px" title="Re-analizar ahora con tu IA (Gemini)">✨ Analizar IA</button>
           </span>
         </div>
         <div class="pano" id="pano">Generando panorama…</div>
@@ -324,21 +326,21 @@
   <div class="box">
     <div class="mh"><span>🧠 Configurar Analizador IA</span><span class="x" id="aiClose">✕</span></div>
     <div class="mb2">
-      <div class="note">🔐 Tu clave se guarda <b>solo en este navegador</b> (localStorage), nunca se sube al repositorio. Como compartiste tu clave en el chat, <b>regenérala</b> en la web de tu proveedor (p. ej. console.groq.com) y pega aquí la nueva. <b>Groq</b> y <b>Gemini</b> son los que mejor funcionan desde el navegador.</div>
+      <div class="note">🔐 Tu clave se guarda <b>solo en este navegador</b> (localStorage), nunca se sube al repositorio. Si compartiste tu clave en algún chat, <b>regenérala</b> en <b>aistudio.google.com</b> (Get API key) y pega aquí la nueva. Proveedor recomendado: <b>Google Gemini</b> (modelo <b>gemini-2.5-flash</b>); funciona bien desde el navegador y es el analista por defecto.</div>
       <div class="field"><label>Proveedor</label>
         <select id="aiProvider">
-          <option value="kluster">Kluster.ai</option>
+          <option value="gemini">Google Gemini (recomendado)</option>
           <option value="groq">Groq</option>
           <option value="openai">OpenAI</option>
-          <option value="gemini">Google Gemini</option>
+          <option value="kluster">Kluster.ai</option>
           <option value="openrouter">OpenRouter</option>
           <option value="deepseek">DeepSeek</option>
           <option value="custom">Personalizado</option>
         </select>
       </div>
-      <div class="field"><label>Endpoint (Base URL · /chat/completions)</label><input id="aiBase" placeholder="https://api.kluster.ai/v1/chat/completions"></div>
-      <div class="field"><label>Modelo</label><input id="aiModel" placeholder="klusterai/Meta-Llama-3.1-8B-Instruct-Turbo"></div>
-      <div class="field"><label>API Key</label><input id="aiKey" type="password" placeholder="pega tu clave aquí (ksk_… / gsk_… / sk-…)"></div>
+      <div class="field"><label>Endpoint (Base URL · /chat/completions)</label><input id="aiBase" placeholder="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"></div>
+      <div class="field"><label>Modelo</label><input id="aiModel" placeholder="gemini-2.5-flash"></div>
+      <div class="field"><label>API Key</label><input id="aiKey" type="password" placeholder="pega tu clave de Gemini aquí (AIza…)"></div>
       <div class="toggle on" id="aiUse" style="align-self:flex-start"><span class="switch"></span> Usar IA para el panorama</div>
       <div class="mactions">
         <button class="btn" id="aiTest">Probar conexión</button>
@@ -355,35 +357,36 @@
    INSTRUMENTOS
    =========================================================== */
 const INSTRUMENTS={
-  US30:{tv:'OANDA:US30USD',label:'US30',desc:'Dow Jones',kw:['dow','us30','industriales','wall street','blue chip']},
-  US100:{tv:'OANDA:NAS100USD',label:'US100',desc:'Nasdaq 100',kw:['nasdaq','us100','tecnológic','tecnologia','tecnología','semiconductor','nvidia','apple','microsoft','megacaps','chips','ia ','inteligencia artificial']},
-  XAUUSD:{tv:'OANDA:XAUUSD',label:'XAUUSD',desc:'Oro',kw:['oro','gold','xau','metal precioso','refugio','lingote','onza']},
-  EURUSD:{tv:'OANDA:EURUSD',label:'EURUSD',desc:'Euro / Dólar',kw:['euro','eur/usd','eurusd','bce','ecb','eurozona','lagarde','zona euro']},
+  US100:{tv:'OANDA:NAS100USD',label:'US100',desc:'Nasdaq 100',kw:['nasdaq','us100','tecnológic','tecnologia','tecnología','semiconductor','nvidia','apple','microsoft','megacaps','chips','ia ','inteligencia artificial','big tech','magnificent']},
+  US30:{tv:'OANDA:US30USD',label:'US30',desc:'Dow Jones',kw:['dow','us30','dow jones','industriales','wall street','blue chip']},
+  US500:{tv:'OANDA:SPX500USD',label:'US500',desc:'S&P 500',kw:['s&p','sp500','s&p 500','standard & poor','spx','us500','500 index','índice amplio','renta variable estadounidense']},
+  OIL:{tv:'TVC:USOIL',label:'OIL',desc:'Petróleo WTI',kw:['petróleo','petroleo','crudo','oil','wti','brent','barril','opep','opec','energía','energia','gas natural','inventarios de crudo','eia','producción de crudo']},
+  XAUUSD:{tv:'OANDA:XAUUSD',label:'XAUUSD',desc:'Oro',kw:['oro','gold','xau','metal precioso','refugio','lingote','onza','metales preciosos']},
 };
-const ORDER=['US30','US100','XAUUSD','EURUSD'];
+const ORDER=['US100','US30','US500','OIL','XAUUSD'];
 let SELECTED='US100';
 
 /* MACRO + ANTICIPACIÓN keywords */
-const MACRO_KW=['fed','reserva federal','powell','fomc','tipos de interés','tasas','tipos','inflación','ipc','pce','pib','gdp','empleo','nóminas','nfp','paro','desempleo','dólar','dxy','bono','rendimiento','treasury','recesión','recorte','subida de tipos','bce','banco central','aranceles','geopolít','war','inflation','rates','jobs'];
+const MACRO_KW=['fed','reserva federal','powell','fomc','tipos de interés','tasas','tipos','inflación','ipc','pce','pib','gdp','empleo','nóminas','nfp','paro','desempleo','dólar','dxy','bono','rendimiento','treasury','recesión','recorte','subida de tipos','bce','banco central','aranceles','geopolít','petróleo','crudo','opep','opec','energía','barril','war','inflation','rates','jobs','oil','opec'];
 const ANTI_KW=['previsión','prevé','proyección','proyecta','expectativa','se espera','espera','anticipa','pronóstico','estimación','estima','podría','podrían','perspectiva','outlook','guidance','adelanta','apunta a','de cara a','antes de','clave esta semana','qué esperar','en la previa','futuro','riesgo de','escenario','forecast','expected','could','may ','set to','ahead of'];
 
 /* ===========================================================
    MOTOR DE ANÁLISIS — temas y efecto por activo (-3..+3)
    =========================================================== */
 const THEMES=[
- {id:'riskoff',label:'Aversión al riesgo / geopolítica',kw:['guerra','conflicto','ataque','misil','bombardeo','tensión','tension','sanciones','no acuerdo','sin acuerdo','ruptura','escalada','irán','iran','rusia','ucrania','nuclear','atentado','golpe militar','war','conflict','attack','sanctions','escalation','tensions','crisis'],eff:{US30:-2,US100:-3,XAUUSD:3,EURUSD:-1}},
- {id:'riskon',label:'Apetito por riesgo / distensión',kw:['acuerdo alcanzado','tregua','alto el fuego','paz','alivio','optimismo','rally','récord','máximos históricos','record high','agreement','truce','ceasefire','risk-on','rebote'],eff:{US30:2,US100:3,XAUUSD:-2,EURUSD:1}},
- {id:'hawkish',label:'Tono restrictivo / inflación alta',kw:['subida de tipos','sube los tipos','tipos más altos','hawkish','restrictiv','inflación sube','ipc sube','inflación persistente','inflación más alta','rate hike','higher rates','hot inflation','sticky inflation','cpi rises','empleo fuerte','nóminas fuertes','sólido empleo','strong jobs','tasas más altas'],eff:{US30:-1,US100:-3,XAUUSD:-2,EURUSD:-2}},
- {id:'dovish',label:'Tono acomodaticio / recortes',kw:['recorte de tipos','recortar tipos','bajada de tipos','dovish','baja la inflación','inflación cae','ipc baja','rate cut','cut rates','lower rates','cooling inflation','desinflación','empleo débil','weak jobs','expectativa de recorte','pivote'],eff:{US30:2,US100:3,XAUUSD:2,EURUSD:2}},
- {id:'recession',label:'Riesgo de recesión / desaceleración',kw:['recesión','recession','desaceleración','contracción','hard landing','despidos masivos','layoffs','crisis económica','slowdown'],eff:{US30:-2,US100:-2,XAUUSD:2,EURUSD:0}},
- {id:'growth',label:'Crecimiento sólido',kw:['crecimiento sólido','expansión económica','pib crece','economía crece','strong growth','gdp beats'],eff:{US30:2,US100:2,XAUUSD:-1,EURUSD:1}},
- {id:'tech_pos',label:'Tecnológicas / resultados positivos',kw:['supera previsiones','bate previsiones','resultados récord','beneficios récord','beats estimates','strong earnings','record profit','guidance al alza','auge de la ia','demanda de chips','nvidia se dispara'],eff:{US30:1,US100:3,XAUUSD:0,EURUSD:0}},
- {id:'tech_neg',label:'Tecnológicas / resultados negativos',kw:['decepciona','por debajo de previsiones','profit warning','misses estimates','weak earnings','guidance a la baja','caen las tecnológicas','burbuja de la ia','desplome tecnológic'],eff:{US30:-1,US100:-3,XAUUSD:0,EURUSD:0}},
- {id:'oil_up',label:'Energía / petróleo al alza',kw:['petróleo sube','crudo sube','oil jumps','oil surges','opep recorta','energía se dispara','gas se dispara','barril sube'],eff:{US30:-1,US100:-1,XAUUSD:1,EURUSD:0}},
- {id:'ecb_hawk',label:'BCE restrictivo / eurozona fuerte',kw:['bce sube','bce restrictivo','lagarde hawkish','eurozona fuerte','inflación eurozona sube','ecb hike'],eff:{US30:0,US100:0,XAUUSD:0,EURUSD:2}},
- {id:'ecb_dov',label:'BCE acomodaticio / eurozona débil',kw:['bce recorta','bce baja','lagarde dovish','eurozona se debilita','recesión eurozona','ecb cut'],eff:{US30:0,US100:0,XAUUSD:0,EURUSD:-2}},
- {id:'usd_up',label:'Dólar fuerte',kw:['dólar se fortalece','dólar sube','dxy sube','dollar strengthens','dollar rises','strong dollar','dólar al alza'],eff:{US30:0,US100:-1,XAUUSD:-2,EURUSD:-2}},
- {id:'usd_down',label:'Dólar débil',kw:['dólar se debilita','dólar baja','dxy baja','dollar weakens','dollar falls','weak dollar','dólar a la baja'],eff:{US30:0,US100:1,XAUUSD:2,EURUSD:2}},
+ {id:'riskoff',label:'Aversión al riesgo / geopolítica',kw:['guerra','conflicto','ataque','misil','bombardeo','tensión','tension','sanciones','no acuerdo','sin acuerdo','ruptura','escalada','irán','iran','rusia','ucrania','nuclear','atentado','golpe militar','war','conflict','attack','sanctions','escalation','tensions','crisis'],eff:{US100:-3,US30:-2,US500:-2,OIL:2,XAUUSD:3}},
+ {id:'riskon',label:'Apetito por riesgo / distensión',kw:['acuerdo alcanzado','tregua','alto el fuego','paz','alivio','optimismo','rally','récord','máximos históricos','record high','agreement','truce','ceasefire','risk-on','rebote'],eff:{US100:3,US30:2,US500:2,OIL:-1,XAUUSD:-2}},
+ {id:'hawkish',label:'Tono restrictivo / inflación alta',kw:['subida de tipos','sube los tipos','tipos más altos','hawkish','restrictiv','inflación sube','ipc sube','inflación persistente','inflación más alta','rate hike','higher rates','hot inflation','sticky inflation','cpi rises','empleo fuerte','nóminas fuertes','sólido empleo','strong jobs','tasas más altas'],eff:{US100:-3,US30:-1,US500:-2,OIL:-1,XAUUSD:-2}},
+ {id:'dovish',label:'Tono acomodaticio / recortes',kw:['recorte de tipos','recortar tipos','bajada de tipos','dovish','baja la inflación','inflación cae','ipc baja','rate cut','cut rates','lower rates','cooling inflation','desinflación','empleo débil','weak jobs','expectativa de recorte','pivote'],eff:{US100:3,US30:2,US500:2,OIL:1,XAUUSD:2}},
+ {id:'recession',label:'Riesgo de recesión / desaceleración',kw:['recesión','recession','desaceleración','contracción','hard landing','despidos masivos','layoffs','crisis económica','slowdown'],eff:{US100:-2,US30:-2,US500:-2,OIL:-2,XAUUSD:2}},
+ {id:'growth',label:'Crecimiento sólido',kw:['crecimiento sólido','expansión económica','pib crece','economía crece','strong growth','gdp beats'],eff:{US100:2,US30:2,US500:2,OIL:1,XAUUSD:-1}},
+ {id:'tech_pos',label:'Tecnológicas / resultados positivos',kw:['supera previsiones','bate previsiones','resultados récord','beneficios récord','beats estimates','strong earnings','record profit','guidance al alza','auge de la ia','demanda de chips','nvidia se dispara'],eff:{US100:3,US30:1,US500:2,OIL:0,XAUUSD:0}},
+ {id:'tech_neg',label:'Tecnológicas / resultados negativos',kw:['decepciona','por debajo de previsiones','profit warning','misses estimates','weak earnings','guidance a la baja','caen las tecnológicas','burbuja de la ia','desplome tecnológic'],eff:{US100:-3,US30:-1,US500:-2,OIL:0,XAUUSD:0}},
+ {id:'oil_up',label:'Energía / petróleo al alza',kw:['petróleo sube','crudo sube','oil jumps','oil surges','opep recorta','opep+ recorta','recorte de producción','energía se dispara','gas se dispara','barril sube','interrupción de suministro','embargo petrolero'],eff:{US100:-1,US30:-1,US500:-1,OIL:3,XAUUSD:1}},
+ {id:'oil_down',label:'Energía / petróleo a la baja',kw:['petróleo cae','petróleo baja','crudo cae','oil falls','oil drops','oil slumps','opep aumenta','aumento de producción','sobreoferta','demanda débil de crudo','exceso de oferta','barril baja','inventarios suben'],eff:{US100:1,US30:1,US500:1,OIL:-3,XAUUSD:-1}},
+ {id:'opec',label:'OPEP+ / decisión de producción',kw:['opep','opep+','opec','reunión de la opep','cuotas de producción','arabia saudí','arabia saudita','recorte voluntario'],eff:{US100:0,US30:0,US500:0,OIL:2,XAUUSD:0}},
+ {id:'usd_up',label:'Dólar fuerte',kw:['dólar se fortalece','dólar sube','dxy sube','dollar strengthens','dollar rises','strong dollar','dólar al alza'],eff:{US100:-1,US30:0,US500:-1,OIL:-1,XAUUSD:-2}},
+ {id:'usd_down',label:'Dólar débil',kw:['dólar se debilita','dólar baja','dxy baja','dollar weakens','dollar falls','weak dollar','dólar a la baja'],eff:{US100:1,US30:1,US500:1,OIL:1,XAUUSD:2}},
 ];
 
 /* ===========================================================
@@ -394,7 +397,8 @@ const FEEDS=[
  {url:G+encodeURIComponent('Reserva Federal inflación tipos de interés EEUU'),src:'Google News·Fed',cat:'macro',lang:'es'},
  {url:G+encodeURIComponent('Nasdaq 100 OR "S&P 500" OR Wall Street'),src:'Google News·Índices',cat:'macro',lang:'es'},
  {url:G+encodeURIComponent('precio del oro XAUUSD análisis'),src:'Google News·Oro',cat:'macro',lang:'es'},
- {url:G+encodeURIComponent('euro dólar EUR/USD BCE'),src:'Google News·EURUSD',cat:'macro',lang:'es'},
+ {url:G+encodeURIComponent('precio del petróleo WTI Brent OPEP'),src:'Google News·Petróleo',cat:'macro',lang:'es'},
+ {url:G+encodeURIComponent('S&P 500 índice bolsa de EEUU pronóstico'),src:'Google News·S&P 500',cat:'macro',lang:'es'},
  {url:'https://www.fxstreet.es/rss/news',src:'FXStreet',cat:'macro',lang:'es'},
  {url:'https://es.investing.com/rss/news_95.rss',src:'Investing·Indicadores',cat:'macro',lang:'es'},
  {url:'https://es.investing.com/rss/news_1.rss',src:'Investing·Forex',cat:'macro',lang:'es'},
@@ -417,7 +421,7 @@ const FEEDS=[
 const CAT_BADGE={macro:{t:'Macro',c:'var(--accent-2)'},markets:{t:'Mercados',c:'var(--accent)'},micro:{t:'Sector',c:'var(--ai)'},politica:{t:'Política',c:'var(--warn)'},social:{t:'Social',c:'var(--hot)'}};
 
 const REFRESH_MS=4*60*1000;
-let STATE={items:[],cat:'markets',q:'',translate:true,onlyMine:false,forecast:null,agenda:[]};
+let STATE={items:[],cat:'markets',q:'',translate:true,onlyMine:false,swingOnly:true,forecast:null,agenda:[],ai:null,aiBusy:false,aiStamp:null};
 const trCache=new Map();
 let seenAlert=new Set();let firstLoad=true;
 
@@ -425,10 +429,10 @@ let seenAlert=new Set();let firstLoad=true;
    IA CONFIG
    =========================================================== */
 const AI_PRESETS={
- kluster:{base:'https://api.kluster.ai/v1/chat/completions',model:'klusterai/Meta-Llama-3.1-8B-Instruct-Turbo'},
+ gemini:{base:'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',model:'gemini-2.5-flash'},
  groq:{base:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile'},
  openai:{base:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini'},
- gemini:{base:'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',model:'gemini-2.0-flash'},
+ kluster:{base:'https://api.kluster.ai/v1/chat/completions',model:'klusterai/Meta-Llama-3.1-8B-Instruct-Turbo'},
  openrouter:{base:'https://openrouter.ai/api/v1/chat/completions',model:'meta-llama/llama-3.3-70b-instruct'},
  deepseek:{base:'https://api.deepseek.com/v1/chat/completions',model:'deepseek-chat'},
  custom:{base:'',model:''},
@@ -462,7 +466,7 @@ async function translateItem(it){if(it.lang!=='en'||it._tr)return;const[t,d]=awa
    =========================================================== */
 function lc(it){return(it.title+' '+it.desc).toLowerCase();}
 function analyze(it){
- const s=lc(it);const sc={US30:0,US100:0,XAUUSD:0,EURUSD:0};const themes=[];const ids=[];
+ const s=lc(it);const sc={US100:0,US30:0,US500:0,OIL:0,XAUUSD:0};const themes=[];const ids=[];
  for(const th of THEMES){ if(th.kw.some(k=>s.includes(k))){ themes.push(th.label); ids.push(th.id); for(const k in th.eff) sc[k]+=th.eff[k]; } }
  it._sc=sc;it._themes=themes;it._ids=ids;it._anti=ANTI_KW.some(k=>s.includes(k));
  it._maxAbs=Math.max(...ORDER.map(k=>Math.abs(sc[k])));
@@ -485,8 +489,9 @@ async function loadAll(){
  if(STATE.translate){const en=items.filter(i=>i.lang==='en'&&!i._tr).slice(0,45);for(const it of en){await translateItem(it);analyze(it);}renderAll();}
  setSub(items.length+' titulares · '+new Date().toLocaleTimeString('es-ES'));
  document.getElementById('fcStamp').textContent='Actualizado '+new Date().toLocaleTimeString('es-ES');
+ maybeRunAI();
 }
-function renderAll(){buildForecast();renderFeed();renderGrid();renderRiskMeter();generatePanoramaLocal();}
+function renderAll(){buildForecast();renderFeed();renderGrid();renderRiskMeter();renderPanorama();}
 function checkAlerts(items){
  const strong=items.filter(i=>i._maxAbs>=3);
  const fresh=strong.filter(i=>!seenAlert.has(i.id));
@@ -519,27 +524,41 @@ function buildForecast(){
  });
  STATE.forecast={};
  cont.innerHTML='';
+ const AI=STATE.ai&&STATE.ai.instrumentos;
  ORDER.forEach(k=>{
   const ins=INSTRUMENTS[k];const raw=agg[k].score; const norm=Math.max(-10,Math.min(10,raw));
-  const d=dirOf(norm>=2?2:norm<=-2?-2:Math.round(norm));
-  const conf=Math.min(95,30+Math.round(Math.abs(norm)*7));
-  const pct=Math.round((norm+10)/20*100);
-  const fillC=norm>0?'var(--up)':norm<0?'var(--down)':'var(--neutral)';
-  const fillStyle=norm>=0?`left:50%;width:${(pct-50)}%;background:${fillC}`:`right:50%;width:${(50-pct)}%;background:${fillC}`;
   const topTheme=Object.entries(agg[k].themeScore).sort((a,b)=>b[1]-a[1])[0];
-  STATE.forecast[k]={dirVal:norm,conf,topTheme:topTheme?topTheme[0]:null};
-  // drivers top
-  const drv=agg[k].drivers.sort((a,b)=>Math.abs(b.v)-Math.abs(a.v)).slice(0,2)
+  STATE.forecast[k]={dirVal:norm,conf:Math.min(95,30+Math.round(Math.abs(norm)*7)),topTheme:topTheme?topTheme[0]:null};
+  const ai=AI?STATE.ai.instrumentos[k]:null;
+  let d,conf,pct,vsub,drv,reco,iaBadge='';
+  if(ai){
+   d=aiBiasMeta(ai.sesgo);
+   conf=Math.max(0,Math.min(100,Math.round(Number(ai.conviccion)||50)));
+   const sval=d.ar==='▲'?1:d.ar==='▼'?-1:0;
+   pct=Math.round(50+sval*(conf/2));
+   vsub='analista IA'+(ai.horizonte?' · '+esc(ai.horizonte):'');
+   iaBadge='<span class="iatag">IA</span>';
+   drv=`<div class="drv">🎯 <b>${esc(ai.catalizador||'Sin catalizador macro dominante.')}</b></div>`+(ai.vigilar?`<div class="drv">👁️ Vigilar: ${esc(ai.vigilar)}</div>`:'');
+   reco=`<b>Plan swing:</b> ${esc(ai.accion||'Esperar confirmación de precio.')}`;
+  }else{
+   d=dirOf(norm>=2?2:norm<=-2?-2:Math.round(norm));
+   conf=Math.min(95,30+Math.round(Math.abs(norm)*7));
+   pct=Math.round((norm+10)/20*100);
+   vsub='según flujo de noticias';
+   drv=agg[k].drivers.sort((a,b)=>Math.abs(b.v)-Math.abs(a.v)).slice(0,2)
     .map(x=>`<div class="drv">${x.v>0?'<span style="color:var(--up)">▲</span>':'<span style="color:var(--down)">▼</span>'} <b>${esc(x.it.title.slice(0,68))}${x.it.title.length>68?'…':''}</b></div>`).join('')||'<div class="drv">Sin catalizadores fuertes ahora mismo.</div>';
-  const reco=swingReco(k,norm);
+   reco=swingReco(k,norm);
+  }
+  const fillC=d.ar==='▲'?'var(--up)':d.ar==='▼'?'var(--down)':'var(--neutral)';
+  const fillStyle=pct>=50?`left:50%;width:${(pct-50)}%;background:${fillC}`:`right:50%;width:${(50-pct)}%;background:${fillC}`;
   const card=document.createElement('div');card.className='fc';card.style.cursor='pointer';
   card.onclick=(e)=>{if(e.target.closest('a'))return;selectInstrument(k);};
   card.innerHTML=`
    <div class="strip" style="background:${d.c}"></div>
-   <div class="fch"><div class="nm">${ins.label}<small>${ins.desc}</small></div><div class="quote" id="q_${k}"></div></div>
-   <div class="verdict"><span class="arrow" style="color:${d.c}">${d.ar}</span><div><div class="vtxt" style="color:${d.c}">${d.t}</div><div class="vsub">según flujo de noticias</div></div></div>
+   <div class="fch"><div class="nm">${ins.label} ${iaBadge}<small>${ins.desc}</small></div><div class="quote" id="q_${k}"></div></div>
+   <div class="verdict"><span class="arrow" style="color:${d.c}">${d.ar}</span><div><div class="vtxt" style="color:${d.c}">${d.t}</div><div class="vsub">${vsub}</div></div></div>
    <div class="bar"><div class="mid"></div><div class="fill" style="${fillStyle}"></div></div>
-   <div class="conf"><span>Bajista</span><span>Confianza ${conf}%</span><span>Alcista</span></div>
+   <div class="conf"><span>Bajista</span><span>Convicción ${conf}%</span><span>Alcista</span></div>
    <div class="drivers">${drv}</div>
    <div class="reco">${reco}</div>`;
   cont.appendChild(card);
@@ -567,6 +586,7 @@ function escA(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function renderFeed(){
  const box=document.getElementById('afeed');
  let list=STATE.items.filter(i=>i.cat==='macro'||i._maxAbs>=1);
+ if(STATE.swingOnly){list=list.filter(i=>i._maxAbs>=2||(i.cat==='macro'&&(i._maxAbs>=1||MACRO_KW.some(k=>lc(i).includes(k)))));}
  if(STATE.q){const q=STATE.q.toLowerCase();list=list.filter(i=>(i.title+' '+i.desc+' '+i.src).toLowerCase().includes(q));}
  list.forEach(i=>{i._rel=isRelevant(i);});
  if(STATE.onlyMine){list=list.filter(i=>i._sc[SELECTED]!==0||INSTRUMENTS[SELECTED].kw.some(k=>lc(i).includes(k)));}
@@ -587,7 +607,7 @@ function renderFeed(){
    const d=dirOf(it._sc[top]);
    const reason=it._themes.length?it._themes.join('; '):'movimiento de mercado';
    verdict=`<div class="verdictline"><b>${INSTRUMENTS[top].label} ${d.ar} ${d.t}</b> — ${esc(reason)}.
-     <span class="rem">⏰ Próximas horas: vigila ${INSTRUMENTS[top].label}${impactExtra(it,top)} por esta noticia.</span></div>`;
+     <span class="rem">🎯 Sesgo swing: vigila ${INSTRUMENTS[top].label}${impactExtra(it,top)} por esta noticia.</span></div>`;
   }else{
    verdict=`<div class="verdictline" style="border-color:var(--neutral)"><b>Impacto neutro / informativo.</b> Sin sesgo direccional claro para tus activos.</div>`;
   }
@@ -619,7 +639,7 @@ function renderGrid(){
 /* ===========================================================
    AGENDA · ForexFactory (próximas horas + recordatorios)
    =========================================================== */
-const CCY_INSTR={USD:['US30','US100','XAUUSD','EURUSD'],EUR:['EURUSD'],CNY:['US100','US30'],JPY:['US100'],GBP:['EURUSD']};
+const CCY_INSTR={USD:['US100','US30','US500','OIL','XAUUSD'],CNY:['US100','US30','US500','OIL'],CAD:['OIL'],EUR:['US100','US500']};
 let scheduled=new Set();
 async function loadAgenda(){
  const t=await fetchText('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
@@ -628,7 +648,7 @@ async function loadAgenda(){
  let data;try{data=JSON.parse(t);}catch(e){cont.innerHTML='<div class="empty">Agenda no disponible.</div>';return;}
  const now=Date.now();
  let ev=data.map(e=>({title:e.title,ccy:e.country,impact:e.impact,when:new Date(e.date).getTime(),forecast:e.forecast,previous:e.previous}))
-   .filter(e=>['USD','EUR'].includes(e.ccy)&&['High','Medium'].includes(e.impact)&&e.when>now-3600e3)
+   .filter(e=>['USD'].includes(e.ccy)&&['High','Medium'].includes(e.impact)&&e.when>now-3600e3)
    .sort((a,b)=>a.when-b.when).slice(0,12);
  if(!ev.length){cont.innerHTML='<div class="empty">Sin eventos de alto impacto próximos.</div>';return;}
  STATE.agenda=ev;
@@ -668,21 +688,91 @@ async function aiChat(messages){
  try{const r=await fetch('https://corsproxy.io/?url='+encodeURIComponent(c.base),{method:'POST',headers,body});if(r.ok){const j=await r.json();return j.choices?.[0]?.message?.content||'';}}catch(e){}
  throw new Error('No se pudo conectar con la IA (CORS o credenciales). El navegador puede bloquear la llamada directa.');
 }
-async function generarPanorama(){
+/* ===========================================================
+   ANALISTA IA SWING (motor estructurado · decide por ti)
+   =========================================================== */
+function parseAIJson(txt){
+ if(!txt)return null;
+ let s=String(txt).trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+ const a=s.indexOf('{'),b=s.lastIndexOf('}');
+ if(a>=0&&b>a)s=s.slice(a,b+1);
+ try{return JSON.parse(s);}catch(e){return null;}
+}
+function aiBiasMeta(s){s=(s||'').toLowerCase();if(s.startsWith('alc')||s.startsWith('comp')||s.includes('bull'))return{ar:'▲',c:'var(--up)',t:'ALCISTA'};if(s.startsWith('baj')||s.startsWith('vend')||s.includes('bear'))return{ar:'▼',c:'var(--down)',t:'BAJISTA'};return{ar:'■',c:'var(--neutral)',t:'NEUTRAL'};}
+function aiContext(){
+ const news=STATE.items.filter(i=>i._maxAbs>=1||i.cat==='macro').slice(0,22).map((i,n)=>`${n+1}. [${i.src}] ${i.title}`).join('\n')||'(sin titulares relevantes)';
+ const ag=(STATE.agenda||[]).slice(0,8).map(e=>{const dt=new Date(e.when);return `- ${dt.toLocaleString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})} (${e.impact}) ${e.title} [prev:${e.forecast||'—'} ant:${e.previous||'—'}]`;}).join('\n')||'(sin eventos próximos)';
+ const r=riskScore();const mood=r.net>0.15?'risk-on':r.net<-0.15?'risk-off':'mixto';
+ const m=MON.summary||{};
+ const geo=`Conflictos activos: ${m.conf??'n/d'}; tensión/sanciones: ${m.geo??'n/d'}; sismos M4.5+: ${m.quakes??'n/d'}; actividad cerca del Estrecho de Ormuz: ${m.hormuz?'SÍ (riesgo de petróleo al alza)':'no'}.`;
+ return {news,ag,mood,geo,r};
+}
+async function generarAnalisisIA(){
  const pano=document.getElementById('pano');
  const c=aiCfg();
- if(!c.use||!c.key){pano.className='pano placeholder';pano.innerHTML='Activa y guarda tu IA en “Configurar IA” para generar el panorama redactado.';openAI();return;}
- pano.className='pano placeholder';pano.innerHTML='⏳ Analizando con IA las noticias y la agenda…';
- const top=STATE.items.filter(i=>i._maxAbs>=1||i.cat==='macro').slice(0,16)
-   .map((i,n)=>`${n+1}. [${i.src}] ${i.title}`).join('\n');
- const sys='Eres un analista macro institucional. Respondes SOLO en español, claro y accionable, sin markdown excesivo.';
- const usr=`Con estos titulares recientes:\n${top}\n\nRedacta un PANORAMA de las próximas horas para un trader de swing que opera US30 (Dow), US100 (Nasdaq), XAUUSD (oro) y EUR/USD. Para CADA uno indica: sesgo (alcista/bajista/neutral), motivo en 1 frase basado en las noticias, y qué vigilar. Termina con una línea de "Riesgo principal hoy". Máximo 180 palabras.`;
+ if(!c.use||!c.key){pano.className='pano placeholder';pano.innerHTML='Activa tu IA (Gemini recomendado) en “Configurar IA” para que el analista decida el sesgo swing por ti.';openAI();return;}
+ if(STATE.aiBusy)return;
+ STATE.aiBusy=true;
+ const sb=document.getElementById('aiStamp2');if(sb)sb.textContent='⏳ analizando…';
+ if(!STATE.ai){pano.className='pano placeholder';pano.innerHTML='⏳ El analista IA está evaluando noticias macro, agenda y mapa geopolítico para tu sesgo swing…';}
+ const ctx=aiContext();
+ const sys='Eres un analista macro y geopolítico institucional senior de una mesa propietaria, especializado EXCLUSIVAMENTE en SWING TRADING (horizonte de varios días a varias semanas). Decides el sesgo direccional de cada instrumento. IGNORA por completo el ruido intradía y de scalping: solo ponderas catalizadores macro de gran magnitud (decisiones y discursos de bancos centrales, inflación IPC/PCE, empleo/NFP, PIB, geopolítica y guerra, energía/OPEP, resultados de megacaps tecnológicas, riesgo sistémico o de crédito). Eres objetivo, sin sesgo permanente alcista o bajista. Respondes EXCLUSIVAMENTE con un objeto JSON válido, sin markdown ni texto fuera del JSON. Todo el texto en español.';
+ const usr=`CONTEXTO DE MERCADO (en vivo)
+Régimen de riesgo del motor propio: ${ctx.mood} (señales on:${Math.round(ctx.r.on)} / off:${Math.round(ctx.r.off)}).
+Monitor geopolítico global: ${ctx.geo}
+
+TITULARES MACRO RECIENTES (ya filtrados):
+${ctx.news}
+
+AGENDA MACRO PRÓXIMA (alto/medio impacto, USD):
+${ctx.ag}
+
+INSTRUMENTOS: US100 (Nasdaq 100), US30 (Dow Jones), US500 (S&P 500), OIL (petróleo WTI), XAUUSD (oro).
+
+Devuelve un JSON EXACTO con esta forma:
+{
+ "regimen": "risk-on | risk-off | mixto",
+ "resumen": "2-4 frases de contexto macro-geopolítico para un swing trader",
+ "riesgo_principal": "el catalizador que puede cambiar el sesgo",
+ "evento_clave": "próximo evento de agenda a vigilar y por qué",
+ "instrumentos": {
+   "US100": {"sesgo":"alcista|bajista|neutral","conviccion":0,"horizonte":"p.ej. 1-3 semanas","catalizador":"motivo macro en 1 frase","vigilar":"dato o nivel que confirma o invalida el sesgo","accion":"plan swing: dónde buscar entrada y dónde está la invalidación"},
+   "US30": {"sesgo":"","conviccion":0,"horizonte":"","catalizador":"","vigilar":"","accion":""},
+   "US500": {"sesgo":"","conviccion":0,"horizonte":"","catalizador":"","vigilar":"","accion":""},
+   "OIL": {"sesgo":"","conviccion":0,"horizonte":"","catalizador":"","vigilar":"","accion":""},
+   "XAUUSD": {"sesgo":"","conviccion":0,"horizonte":"","catalizador":"","vigilar":"","accion":""}
+ }
+}
+Reglas: convicción alta (>70) solo con catalizador macro claro alineado con el régimen; sin catalizador relevante usa sesgo "neutral" y convicción baja. No inventes datos fuera del contexto. Enfoque swing, nunca scalping.`;
  try{
   const out=await aiChat([{role:'system',content:sys},{role:'user',content:usr}]);
-  pano.className='pano';pano.innerHTML='<h4>🧠 Panorama IA · próximas horas</h4>'+esc(out).replace(/\n/g,'<br>');
-  toast('Panorama IA generado');
- }catch(e){pano.className='pano placeholder';pano.innerHTML='⚠️ '+esc(e.message)+'<br><br>Sugerencia: prueba el proveedor <b>Groq</b> o <b>Gemini</b> (suelen permitir uso desde el navegador). El pronóstico automático de arriba sigue funcionando igual.';}
+  const obj=parseAIJson(out);
+  if(!obj||!obj.instrumentos)throw new Error('La IA no devolvió un JSON válido. Reintenta o cambia de modelo (p. ej. gemini-2.5-flash).');
+  STATE.ai=obj;STATE.aiStamp=Date.now();
+  buildForecast();renderPanoramaAI();
+  if(sb)sb.textContent='IA '+new Date().toLocaleTimeString('es-ES');
+  toast('🧠 Analista IA actualizado');
+ }catch(e){
+  if(sb)sb.textContent='IA: error';
+  if(!STATE.ai){pano.className='pano placeholder';pano.innerHTML='⚠️ '+esc(e.message)+'<br><br>El pronóstico automático (motor propio) sigue activo abajo. Si falla la conexión, revisa tu clave de Gemini en “Configurar IA”.';}
+  else{toast('⚠️ IA: '+e.message.slice(0,40));}
+ }finally{STATE.aiBusy=false;}
 }
+function maybeRunAI(){const c=aiCfg();if(c&&c.use&&c.key&&!STATE.aiBusy)generarAnalisisIA();}
+function renderPanoramaAI(){
+ const pano=document.getElementById('pano');const a=STATE.ai;if(!a)return;
+ const on=(a.regimen||'').includes('on'),off=(a.regimen||'').includes('off');
+ const moodColor=on?'var(--up)':off?'var(--down)':'var(--neutral)';const moodIcon=on?'🟢':off?'🔴':'🟡';
+ let html=`<h4>🧠 Analista IA Swing · ${new Date(STATE.aiStamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</h4>`;
+ html+=`<p><b>Régimen:</b> ${moodIcon} <b style="color:${moodColor}">${esc((a.regimen||'mixto').toUpperCase())}</b></p>`;
+ if(a.resumen)html+=`<p>${esc(a.resumen)}</p>`;
+ ORDER.forEach(k=>{const d=a.instrumentos&&a.instrumentos[k];if(!d)return;const m=aiBiasMeta(d.sesgo);html+=`<p><b style="color:${m.c}">${m.ar} ${INSTRUMENTS[k].label}</b> · ${esc((d.sesgo||'neutral').toLowerCase())} (${d.conviccion??'–'}%) — ${esc(d.catalizador||'')}</p>`;});
+ if(a.evento_clave)html+=`<p style="margin-top:6px"><b>⏰ Evento clave:</b> ${esc(a.evento_clave)}</p>`;
+ if(a.riesgo_principal)html+=`<p style="margin-top:4px;color:var(--warn)"><b>⚠️ Riesgo principal:</b> ${esc(a.riesgo_principal)}</p>`;
+ html+=`<p style="margin-top:8px;font-size:11px;color:var(--txt-dim)">Redactado por tu IA como analista swing. No es asesoramiento financiero.</p>`;
+ pano.className='pano';pano.innerHTML=html;
+}
+function renderPanorama(){if(STATE.ai)renderPanoramaAI();else generatePanoramaLocal();}
 
 /* ===========================================================
    PANORAMA LOCAL (sin IA, gratis)
@@ -690,7 +780,7 @@ async function generarPanorama(){
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 function nextHighImpact(){const now=Date.now();const list=(STATE.agenda||[]).filter(e=>e.when>now);const hi=list.find(e=>e.impact==='High')||list[0];if(!hi)return null;const diff=hi.when-now;const h=Math.floor(diff/3600e3),m=Math.floor((diff%3600e3)/60000);hi._cd=h>0?`en ${h}h ${m}m`:`en ${m}m`;return hi;}
 function topThemeGlobal(){const c={};STATE.items.forEach(it=>(it._themes||[]).forEach(t=>c[t]=(c[t]||0)+1));const e=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return e?e[0]:null;}
-function riskScore(){const ON=['riskon','growth','dovish','tech_pos','usd_down'];const OFF=['riskoff','recession','hawkish','tech_neg','oil_up','usd_up'];let on=0,off=0;const now=Date.now();STATE.items.forEach(it=>{const ageH=(now-it.ts)/3.6e6;const w=ageH<12?1:ageH<24?0.5:0.2;(it._ids||[]).forEach(id=>{if(ON.includes(id))on+=w;if(OFF.includes(id))off+=w;});});const tot=on+off;const net=tot?((on-off)/tot):0;return{on,off,net};}
+function riskScore(){const ON=['riskon','growth','dovish','tech_pos','usd_down','oil_down'];const OFF=['riskoff','recession','hawkish','tech_neg','oil_up','usd_up'];let on=0,off=0;const now=Date.now();STATE.items.forEach(it=>{const ageH=(now-it.ts)/3.6e6;const w=ageH<12?1:ageH<24?0.5:0.2;(it._ids||[]).forEach(id=>{if(ON.includes(id))on+=w;if(OFF.includes(id))off+=w;});});const tot=on+off;const net=tot?((on-off)/tot):0;return{on,off,net};}
 function generatePanoramaLocal(){
  const pano=document.getElementById('pano');if(!STATE.forecast)return;
  const r=riskScore();const moodLabel=r.net>0.15?'RISK-ON (apetito por riesgo)':r.net<-0.15?'RISK-OFF (aversión al riesgo)':'MIXTO / sin dirección clara';
@@ -720,7 +810,7 @@ function renderSessions(){
  const chips=S.map(s=>`<div class="schip ${isOpen(s)?'open':''}"><div class="sn">${s.n}</div><div class="ss">${isOpen(s)?'● Abierta':'Cerrada'}</div></div>`).join('');
  const overlap=(u>=13&&u<17);
  let msg;
- if(overlap){msg=`<div class="sessmsg hot">🔥 <b>Solapamiento Londres–Nueva York</b>: la ventana de <b>mayor volatilidad</b> del día. Ideal para US30, US100, XAUUSD y EUR/USD.</div>`;}
+ if(overlap){msg=`<div class="sessmsg hot">🔥 <b>Solapamiento Londres–Nueva York</b>: la ventana de <b>mayor volatilidad</b> del día. Ideal para US100, US30, US500, OIL y XAUUSD.</div>`;}
  else{let t=13-u;if(t<0)t+=24;const h=Math.floor(t),m=Math.round((t-h)*60);msg=`<div class="sessmsg">⏳ Apertura de <b>Nueva York</b> en <b>${h}h ${m}m</b>. El solapamiento Londres–NY (13:00–17:00 UTC) concentra la mayor volatilidad.</div>`;}
  el.innerHTML=`<div class="sess">${chips}</div>${msg}`;
  const sn=document.getElementById('sessNext');if(sn)sn.textContent=overlap?'🔥 Volatilidad máxima':'';
@@ -768,8 +858,8 @@ const STATIC_PTS={
   {n:'Yokosuka (Japón)',ll:[35.29,139.67],r:'7ª Flota de EEUU, Pacífico.'},
  ]},
  finance:{color:'#16c784',icon:'🏦',pts:[
-  {n:'Reserva Federal (Washington)',ll:[38.89,-77.04],r:'Decisiones de la Fed → mueve TODO: US30, US100, XAUUSD, EUR/USD.'},
-  {n:'BCE (Fráncfort)',ll:[50.11,8.68],r:'Política del BCE → clave para EUR/USD.'},
+  {n:'Reserva Federal (Washington)',ll:[38.89,-77.04],r:'Decisiones de la Fed → mueve TODO: US100, US30, US500, OIL y XAUUSD.'},
+  {n:'BCE (Fráncfort)',ll:[50.11,8.68],r:'Divergencia BCE-Fed → mueve el dólar (DXY) y, de rebote, índices, oro y petróleo.'},
   {n:'Banco de Japón (Tokio)',ll:[35.68,139.77],r:'BoJ y el yen → flujos de riesgo global.'},
   {n:'Banco de Inglaterra (Londres)',ll:[51.51,-0.09],r:'Centro financiero, sesión de máxima liquidez.'},
   {n:'Banco Popular China (Pekín)',ll:[39.91,116.36],r:'Estímulos/yuan → demanda global y materias primas.'},
@@ -827,6 +917,7 @@ async function loadMonitorData(){
  if(tq){try{const gj=JSON.parse(tq);gj.features.forEach(f=>{const c=f.geometry.coordinates;const m=f.properties.mag;const col=m>=6?'#ef4444':m>=5?'#f59e0b':'#a855f7';
    L.circleMarker([c[1],c[0]],{radius:Math.max(4,m*2),color:col,weight:1,fillColor:col,fillOpacity:.35}).bindPopup('<div class="mp"><b>Sismo M'+m+'</b><br>'+esc(f.properties.place||'')+'<br><a href="'+f.properties.url+'" target="_blank" rel="noopener">USGS →</a></div>').addTo(MON.layers.disasters);quakes++;});}catch(e){}}
  const note=document.getElementById('monNote');
+ MON.summary={conf,geo,quakes,hormuz};
  let txt=`🔴 <b>${conf}</b> focos de conflicto · 🟠 <b>${geo}</b> de tensión/sanciones · 🟣 <b>${quakes}</b> sismos M4.5+ (últimos días). `;
  if(hormuz)txt+=`<br><b>⚠️ Actividad cerca del Estrecho de Ormuz</b> → riesgo de petróleo↑ e inflación: favorece XAUUSD (refugio) y presiona US30/US100. Sesgo risk-off.`;
  else if(conf>8)txt+=`<br><b>⚠️ Alta conflictividad global</b> → contexto risk-off: vigila XAUUSD al alza y posible presión en índices.`;
@@ -839,7 +930,7 @@ async function loadMonitorData(){
    TRADINGVIEW HELPER
    =========================================================== */
 function tvInto(el,src,cfg){el.innerHTML='';const w=document.createElement('div');w.className='tradingview-widget-container';const i=document.createElement('div');i.className='tradingview-widget-container__widget';w.appendChild(i);const s=document.createElement('script');s.async=true;s.src=src;s.innerHTML=JSON.stringify(cfg);w.appendChild(s);el.appendChild(w);}
-function loadTicker(){tvInto(document.querySelector('.ticker-wrap .tradingview-widget-container'),'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js',{symbols:[{description:'US30 Dow',proName:'OANDA:US30USD'},{description:'US100 Nasdaq',proName:'OANDA:NAS100USD'},{description:'XAUUSD Oro',proName:'OANDA:XAUUSD'},{description:'EUR/USD',proName:'OANDA:EURUSD'},{description:'DXY Dólar',proName:'TVC:DXY'},{description:'US10Y',proName:'TVC:US10Y'},{description:'VIX',proName:'TVC:VIX'},{description:'Petróleo',proName:'TVC:USOIL'}],showSymbolLogo:true,isTransparent:true,displayMode:'adaptive',colorTheme:'dark',locale:'es'});}
+function loadTicker(){tvInto(document.querySelector('.ticker-wrap .tradingview-widget-container'),'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js',{symbols:[{description:'US100 Nasdaq',proName:'OANDA:NAS100USD'},{description:'US30 Dow',proName:'OANDA:US30USD'},{description:'US500 S&P',proName:'OANDA:SPX500USD'},{description:'OIL WTI',proName:'TVC:USOIL'},{description:'XAUUSD Oro',proName:'OANDA:XAUUSD'},{description:'DXY Dólar',proName:'TVC:DXY'},{description:'US10Y',proName:'TVC:US10Y'},{description:'VIX',proName:'TVC:VIX'}],showSymbolLogo:true,isTransparent:true,displayMode:'adaptive',colorTheme:'dark',locale:'es'});}
 
 /* ===========================================================
    INSTRUMENT BAR
@@ -850,17 +941,18 @@ function selectInstrument(k){if(!INSTRUMENTS[k])return;SELECTED=k;document.query
 /* ===========================================================
    IA MODAL
    =========================================================== */
-function openAI(){const c=aiCfg();const prov=c.provider||detectProvider(c.key)||'kluster';document.getElementById('aiProvider').value=prov;document.getElementById('aiBase').value=c.base||AI_PRESETS[prov].base;document.getElementById('aiModel').value=c.model||AI_PRESETS[prov].model;document.getElementById('aiKey').value=c.key||'';document.getElementById('aiUse').classList.toggle('on',c.use!==false);document.getElementById('aiModal').classList.add('open');}
-function detectProvider(key){if(!key)return null;if(key.startsWith('ksk_'))return'kluster';if(key.startsWith('gsk_'))return'groq';if(key.startsWith('sk-or-'))return'openrouter';if(key.startsWith('sk-'))return'openai';return null;}
+function openAI(){const c=aiCfg();const prov=c.provider||detectProvider(c.key)||'gemini';document.getElementById('aiProvider').value=prov;document.getElementById('aiBase').value=c.base||AI_PRESETS[prov].base;document.getElementById('aiModel').value=c.model||AI_PRESETS[prov].model;document.getElementById('aiKey').value=c.key||'';document.getElementById('aiUse').classList.toggle('on',c.use!==false);document.getElementById('aiModal').classList.add('open');}
+function detectProvider(key){if(!key)return null;if(key.startsWith('AIza'))return'gemini';if(key.startsWith('ksk_'))return'kluster';if(key.startsWith('gsk_'))return'groq';if(key.startsWith('sk-or-'))return'openrouter';if(key.startsWith('sk-'))return'openai';return null;}
 document.getElementById('aiBtn').onclick=openAI;
 document.getElementById('aiClose').onclick=()=>document.getElementById('aiModal').classList.remove('open');
 document.getElementById('aiProvider').onchange=e=>{const p=AI_PRESETS[e.target.value];if(p){document.getElementById('aiBase').value=p.base;document.getElementById('aiModel').value=p.model;}};
 document.getElementById('aiUse').onclick=function(){this.classList.toggle('on');};
-document.getElementById('aiSave').onclick=()=>{const cfg={provider:document.getElementById('aiProvider').value,base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim(),key:document.getElementById('aiKey').value.trim(),use:document.getElementById('aiUse').classList.contains('on')};aiSaveCfg(cfg);document.getElementById('aiModal').classList.remove('open');toast('Configuración de IA guardada en tu navegador');if(cfg.use&&cfg.key)generarPanorama();};
+document.getElementById('aiSave').onclick=()=>{const cfg={provider:document.getElementById('aiProvider').value,base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim(),key:document.getElementById('aiKey').value.trim(),use:document.getElementById('aiUse').classList.contains('on')};aiSaveCfg(cfg);document.getElementById('aiModal').classList.remove('open');toast('Configuración de IA guardada en tu navegador');if(cfg.use&&cfg.key)generarAnalisisIA();};
 document.getElementById('aiTest').onclick=async()=>{const cfg={provider:document.getElementById('aiProvider').value,base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim(),key:document.getElementById('aiKey').value.trim(),use:true};aiSaveCfg(cfg);toast('Probando conexión…');try{const o=await aiChat([{role:'user',content:'Responde solo: OK'}]);toast('✅ IA respondió: '+(o||'').slice(0,40));}catch(e){toast('❌ '+e.message);}};
 document.getElementById('panoBtn').onclick=generatePanoramaLocal;
-document.getElementById('panoAiBtn').onclick=generarPanorama;
+document.getElementById('panoAiBtn').onclick=generarAnalisisIA;
 document.getElementById('onlyMine').onclick=function(){this.classList.toggle('on');STATE.onlyMine=this.classList.contains('on');renderFeed();toast(STATE.onlyMine?'Mostrando solo '+INSTRUMENTS[SELECTED].label:'Mostrando todas');};
+document.getElementById('swingOnly').onclick=function(){this.classList.toggle('on');STATE.swingOnly=this.classList.contains('on');renderFeed();toast(STATE.swingOnly?'Modo swing: solo macro de gran impacto':'Mostrando todo el flujo de noticias');};
 
 /* ===========================================================
    AVISOS
